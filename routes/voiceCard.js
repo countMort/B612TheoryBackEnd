@@ -1,3 +1,5 @@
+const { createZip } = require('./functions/export');
+
 const router = require('express').Router(),
     VoiceCard = require('../models/voiceCard'),
     verifyToken = require('../middlewares/verify-token'),
@@ -14,6 +16,7 @@ const router = require('express').Router(),
         mkdir,
         amrToMp3Function
     } = require('../routes/functions/uploadFunctions'),
+    createQrCode = require('./functions/createQrCode'),
     { unlink } = require('../utils/fs')
 
 // POST request - create a new voice-card
@@ -37,24 +40,22 @@ router.post('/voice-card/plenty', [voiceCardController, verifyToken, isAdmin], a
         req.body.saleMethod = 'digi'
         // Voice Card ha be esme admin sakhte nashan
         delete req.decoded._id
-        let voiceCards = []
-
+        const pathes = []
         for (let index = 0; index < quantity; index++) {
             const otp = otpGen.generate(6, { upperCase: false, specialChars: false, alphabets: false })
             req.body.password = otp
             const vc = await createVoiceCard(req, VoiceCard)
-            voiceCards.push({
-                _id: vc._id,
-                password: otp,
-                photo: req.body.photo
-            })
+            const path = __dirname + `/temp files//%${index}.png`
+            const url = `https://B612theory.ir/remember-remember/${vc._id}?password=${otp}`
+            await createQrCode(path, url)
+            pathes.push(path)
         }
-        voiceCards = Object.freeze(voiceCards)
-
         // await generateVCs(voiceCards)
         const zipPath = __dirname + '/temp files//voice-cards.zip'
-        res.sendFile(zipPath)
-        // await unlink([zipPath])
+        await createZip(pathes, zipPath)
+        await res.sendFile(zipPath)
+        await unlink([zipPath])
+        await unlink(pathes)
     } catch (error) {
         console.trace(error)
         responses(res, 500, [error.message || error])

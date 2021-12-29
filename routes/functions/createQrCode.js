@@ -7,7 +7,7 @@ module.exports = function(path, url) {
                 console.log(err);
                 reject(err)
             }
-            resolve({success: true})
+            resolve({ path, url, success: true })
         })
     })
 }
