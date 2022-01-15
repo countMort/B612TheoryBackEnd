@@ -20,7 +20,7 @@ const ftp = new Promise ((resolve , reject) => {
     });
     c.on('error' , err => {
         ready = false
-        console.log('ftp error');
+        console.log('FTP error: ', err);
         setTimeout(() => {
             c.connect(ftpOptions)
         } , 2000)
@@ -28,7 +28,7 @@ const ftp = new Promise ((resolve , reject) => {
     })
     c.on('end' , () => {
         ready = false
-        console.log('ftp ended');
+        console.log('FTP ended');
         c.connect(ftpOptions)
     })
 })

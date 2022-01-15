@@ -1,5 +1,3 @@
-const { createZip } = require('./functions/export');
-
 const router = require('express').Router(),
     VoiceCard = require('../models/voiceCard'),
     verifyToken = require('../middlewares/verify-token'),
@@ -17,7 +15,8 @@ const router = require('express').Router(),
         amrToMp3Function
     } = require('../routes/functions/uploadFunctions'),
     createQrCode = require('./functions/createQrCode'),
-    { unlink } = require('../utils/fs')
+    { unlink } = require('../utils/fs'),
+    { createZip } = require('./functions/export')
 
 // POST request - create a new voice-card
 router.post('/voice-card', [voiceCardController, verifyToken], async (req, res) => {
@@ -54,8 +53,8 @@ router.post('/voice-card/plenty', [voiceCardController, verifyToken, isAdmin], a
         const zipPath = __dirname + '/temp files//voice-cards.zip'
         await createZip(pathes, zipPath)
         await res.sendFile(zipPath)
-        await unlink([zipPath])
-        await unlink(pathes)
+        // await unlink([zipPath])
+        // await unlink(pathes)
     } catch (error) {
         console.trace(error)
         responses(res, 500, [error.message || error])
