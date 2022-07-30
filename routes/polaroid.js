@@ -79,7 +79,7 @@ router.put("/polaroid/:id", [verifyToken, isAdmin], async(req, res) => {
                 $set: {
                     photo: req.body.photo,
                     thumbnail: req.body.thumbnail,
-                    quote : req.body.qrNumber,
+                    quote : req.body.quote,
                     type : req.body.type,
                 }
             },

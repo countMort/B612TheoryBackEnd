@@ -6,7 +6,7 @@ const { Types } = require('mongoose'),
     sharp       = require('sharp'),
     { putFile } = require('../routes/functions/uploadFunctions'),
     Type        = require('../models/type'),
-    download    = require('./fs'),
+    { download }    = require('./fs'),
     fs          = require('fs/promises'),
     Order       = require('../models/order'),
     Address     = require('../models/address'),
@@ -78,7 +78,7 @@ async function forgotPassword() {
 }
 
 async function createThumbnail() {
-    let products = await Type.find()
+    let products = await Product.find()
     for (let index = 0 ; index < products.length; index++) {
         let element = products[index];
         const photoPath = element.photos[0]

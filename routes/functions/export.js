@@ -9,11 +9,11 @@ async function createZip(filePathsArray, exportPath) {
     const file = await fs.readFile(path)
     zip.file(`${index}.png`, file)
   }
-  const createdZip = await zip.generateAsync({ type: "uint8array" })
+  const createdZip = await zip.generateAsync({ type: 'uint8array' })
   await fs.writeFile(exportPath, createdZip)
   return exportPath
 }
 
 module.exports = {
-  createZip
+  createZip,
 }
