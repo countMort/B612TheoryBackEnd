@@ -1,24 +1,24 @@
-const router = require('express').Router(),
-  { isAdmin } = require('../middlewares/auth'),
-  Feature = require('../models/feature'),
-  responses = require('../middlewares/responses'),
-  { updateModel } = require('./functions/updateModel')
+const router = require("express").Router(),
+  { isAdmin } = require("../middlewares/auth"),
+  Feature = require("../models/feature"),
+  responses = require("../middlewares/responses"),
+  { updateModel } = require("./functions/updateModel")
 
-router.get('/', isAdmin, async (req, res) => {
+router.get("/", isAdmin, async (req, res) => {
   try {
     const features = await Feature.find()
-    return responses(res, 200, ['فیچر ها با موفقیت ارسال شدند'], features)
+    return responses(res, 200, ["فیچر ها با موفقیت ارسال شدند"], features)
   } catch (error) {
     responses(res, 500, [error.message])
   }
 })
 
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const features = await Feature.findOne({ _id: req.params.id })
-      .populate('products types')
+      .populate("products types")
       .exec()
-    return responses(res, 200, ['فیچر با موفقیت ارسال شد'], features)
+    return responses(res, 200, ["فیچر با موفقیت ارسال شد"], features)
   } catch (error) {
     responses(res, 500, [error.message])
   }
@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
 
 // POST request
 
-router.post('/', isAdmin, async (req, res) => {
+router.post("/", isAdmin, async (req, res) => {
   try {
     const feature = new Feature()
     feature.name = req.body.name
@@ -41,7 +41,7 @@ router.post('/', isAdmin, async (req, res) => {
     await feature.save()
     res.json({
       success: true,
-      message: 'فیچر با موفقیت ایجاد شد',
+      message: "فیچر با موفقیت ایجاد شد",
       feature,
     })
   } catch (err) {
@@ -54,31 +54,31 @@ router.post('/', isAdmin, async (req, res) => {
 
 // UPADTE request
 
-router.put('/:id', isAdmin, async (req, res) => {
+router.put("/:id", isAdmin, async (req, res) => {
   try {
     const foundFeature = await Feature.findOne({ _id: req.body._id })
     if (foundFeature) {
       props = [
-        'name',
-        'description',
-        'price',
-        'stockQuantity',
-        'photos',
-        'thumbnails',
-        'products',
-        'types',
+        "name",
+        "description",
+        "price",
+        "stockQuantity",
+        "photos",
+        "thumbnails",
+        "products",
+        "types",
       ]
       foundFeature = updateModel(foundFeature, req.body, props)
       await foundFeature.save()
       res.json({
         success: true,
-        message: 'فیچر با موفقیت به روز شد',
+        message: "فیچر با موفقیت به روز شد",
         result: foundFeature,
       })
     } else {
       res.status(404).json({
         success: false,
-        message: 'فیچر یافت نشد.',
+        message: "فیچر یافت نشد.",
       })
     }
   } catch (err) {
@@ -91,13 +91,13 @@ router.put('/:id', isAdmin, async (req, res) => {
 
 // DELETE request
 
-router.delete('/:id', isAdmin, async (req, res) => {
+router.delete("/:id", isAdmin, async (req, res) => {
   try {
     const deletedFeature = await Feature.deleteOne({ _id: req.params.id })
     if (deletedFeature) {
       res.json({
         success: true,
-        message: 'فیچر با موفقیت حذف شد',
+        message: "فیچر با موفقیت حذف شد",
       })
     }
   } catch (error) {
