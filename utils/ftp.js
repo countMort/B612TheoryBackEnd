@@ -20,7 +20,7 @@ const ftp = new Promise((resolve, reject) => {
   })
   c.on("error", (err) => {
     ready = false
-    console.log("FTP error: ", err)
+    console.error("FTP error: ", err)
     setTimeout(() => {
       c.connect(ftpOptions)
     }, 2000)
@@ -34,7 +34,7 @@ const ftp = new Promise((resolve, reject) => {
 })
 
 function runFtp(type) {
-  if ((type = "initiate")) return ftp
+  if ((type === "initiate")) return ftp
   else return c
 }
 
@@ -52,7 +52,7 @@ unload = async function (path) {
       })
     })
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 
