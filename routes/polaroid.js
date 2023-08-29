@@ -1,16 +1,16 @@
 const router = require('express').Router(),
-    Polaroid =require('../models/polaroid'),
-    User        = require('../models/user'),
+    Polaroid = require('../models/polaroid'),
+    Order = require('../models/order'),
     verifyToken = require('../middlewares/verify-token'),
     isAdmin = require("../middlewares/is-admin"),
     deletePolaroid = require('./functions/deletePolaroid'),
-    responses   = require('../middlewares/responses')
+    responses = require('../middlewares/responses')
 
 
 // POST request - create a new polaroid
-router.post('/polaroid', verifyToken, async(req, res) => {
+router.post('/polaroid', verifyToken, async (req, res) => {
     try {
-        let polaroid = new Polaroid();
+        const polaroid = new Polaroid();
         polaroid.photo = req.body.photo
         polaroid.thumbnail = req.body.thumbnail
         polaroid.quote = req.body.quote
@@ -33,29 +33,41 @@ router.post('/polaroid', verifyToken, async(req, res) => {
 
 // GET request - get all polaroids
 
-router.get("/polaroid", async(req, res) => {
+router.get("/polaroid", [verifyToken, isAdmin], async (req, res) => {
     try {
-        let polaroids = await Polaroid.find();
+        // const polaroids = await Polaroid.find().sort({createdTime: -1}).limit(300);
+        const orders = await Order.find({ 'products.polaroid': { $exists: true} }).sort({createdTime: -1}).limit(50).populate('products.polaroid').exec()
+        const result = orders.reduce((pv, cv) => {
+            const pols = cv.products.map(pr => ({
+                polaroid: pr.polaroid,
+                order: cv
+            }))
+            .filter(pr => pr.polaroid)
+            return [
+                ...pv,
+                ...pols
+            ]
+        }, [])
         res.json({
-            success : true,
-            polaroids : polaroids
+            success: true,
+            data: result
         })
     } catch (error) {
         res.status(500).json({
             success: false,
             message: error.message
-        })  
+        })
     }
 })
 
 
 // GET request - get a single polaroid
 
-router.get("/polaroid/:id", async(req, res) => {
+router.get("/polaroid/:id", async (req, res) => {
     try {
-        let polaroid = await Polaroid.findOne({ _id : req.params.id});
+        let polaroid = await Polaroid.findOne({ _id: req.params.id });
         res.json({
-            success : true,
+            success: true,
             polaroid
         })
     } catch (error) {
@@ -69,18 +81,18 @@ router.get("/polaroid/:id", async(req, res) => {
 
 // PUT request - update a single polaroid
 
-router.put("/polaroid/:id", [verifyToken, isAdmin], async(req, res) => {
+router.put("/polaroid/:id", [verifyToken, isAdmin], async (req, res) => {
     try {
         let polaroid = await Polaroid.findOneAndUpdate(
-            { 
-                _id : req.params.id
-            }, 
+            {
+                _id: req.params.id
+            },
             {
                 $set: {
                     photo: req.body.photo,
                     thumbnail: req.body.thumbnail,
-                    quote : req.body.quote,
-                    type : req.body.type,
+                    quote: req.body.quote,
+                    type: req.body.type,
                 }
             },
             // {
@@ -88,15 +100,15 @@ router.put("/polaroid/:id", [verifyToken, isAdmin], async(req, res) => {
             // }
         );
         res.json({
-            success : true,
-            updatedProduct : polaroid,
-            message : "عکس پولاروید با موفقیت به‌روز شد."
+            success: true,
+            updatedProduct: polaroid,
+            message: "عکس پولاروید با موفقیت به‌روز شد."
         })
     } catch (error) {
         res.status(500).json({
             success: false,
             message: error.message
-        })  
+        })
     }
 })
 
@@ -104,15 +116,15 @@ router.put("/polaroid/:id", [verifyToken, isAdmin], async(req, res) => {
 
 router.delete("/polaroid/:id", verifyToken, async (req, res) => {
     try {
-        let polaroid = await Polaroid.findOne({_id: req.params.id})
-        if (!polaroid) return responses(res, 202,[], polaroid)
-        if(['admin','super_admin'].indexOf(req.decoded.role) != -1 || JSON.stringify(polaroid.user) == JSON.stringify(req.decoded._id)) {
+        let polaroid = await Polaroid.findOne({ _id: req.params.id })
+        if (!polaroid) return responses(res, 202, [], polaroid)
+        if (['admin', 'super_admin'].indexOf(req.decoded.role) != -1 || JSON.stringify(polaroid.user) == JSON.stringify(req.decoded._id)) {
             await deletePolaroid(polaroid)
-            return responses(res,202,['عکس پولاروید'], polaroid)
+            return responses(res, 202, ['عکس پولاروید'], polaroid)
         }
-        return responses(res,403)
+        return responses(res, 403)
     } catch (error) {
-        return responses(res,500,[error.message || error])
+        return responses(res, 500, [error.message || error])
     }
 })
 

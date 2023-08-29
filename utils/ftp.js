@@ -20,7 +20,7 @@ const ftp = new Promise((resolve, reject) => {
   })
   c.on("error", (err) => {
     ready = false
-    console.error("FTP error: ", err)
+    console.log("FTP error: ", err)
     setTimeout(() => {
       c.connect(ftpOptions)
     }, 2000)
@@ -34,25 +34,33 @@ const ftp = new Promise((resolve, reject) => {
 })
 
 function runFtp(type) {
-  if ((type === "initiate")) return ftp
+  if ((type = "initiate")) return ftp
   else return c
 }
 
 unload = async function (path) {
   try {
-    if (!ready) await ftp()
-    return await new Promise((resolve, reject) => {
-      console.log("deleting: ", path.slice(path.indexOf(".ir/") + 4))
-      c.delete(path.slice(path.indexOf(".ir/") + 4), (error) => {
-        if (error) {
-          resolve({ error, result: "error" })
-        } else {
-          resolve({ path, result: "deleted" })
-        }
+    if (!ready) {
+      await new Promise((resolve, rej) => {
+        setTimeout(() => {
+          unload(path)
+          .then((res) => resolve(res))
+        }, 2000)
       })
-    })
+    } else {
+      return await new Promise((resolve, reject) => {
+        console.log("deleting: ", path.slice(path.indexOf(".ir/") + 4))
+        c.delete(path.slice(path.indexOf(".ir/") + 4), (error) => {
+          if (error) {
+            resolve({ error, result: "error" })
+          } else {
+            resolve({ path, result: "deleted" })
+          }
+        })
+      })
+    }
   } catch (error) {
-    console.error(error)
+    console.log(error)
   }
 }
 
