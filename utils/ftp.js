@@ -43,8 +43,7 @@ unload = async function (path) {
     if (!ready) {
       await new Promise((resolve, rej) => {
         setTimeout(() => {
-          unload(path)
-          .then((res) => resolve(res))
+          unload(path).then((res) => resolve(res))
         }, 2000)
       })
     } else {

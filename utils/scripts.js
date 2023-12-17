@@ -15,10 +15,6 @@ const { Types } = require("mongoose"),
   QRCode = require("qrcode")
 const { unload } = require("./ftp")
 
-async function none() {
-  return false
-}
-
 async function addProductsToCategories() {
   var categories = await Category.find()
   const products = await Product.find()
@@ -70,7 +66,7 @@ async function changeVoiceCardPassword() {
 async function forgotPassword() {
   var users = await User.find()
   for (let index = 0; index < users.length; index++) {
-    if (users[index].phone == 09112270439) {
+    if (users[index].phone == 9112270439) {
       users[index].password = 1234
       await users[index].save()
       console.log(users[index])
@@ -170,33 +166,33 @@ async function testDownloadSpeed() {
 
 async function removeOldPolaroids() {
   try {
-    const polaroids = await Polaroid.find()
+    const polaroids = await Polaroid.find({ status: { $ne: 'cleaned' } })
+    const updatingPolaroids = []
     for (const polaroid of polaroids) {
-      // if (
-      //   (polaroid.photo =
-      //     "https://dl.b612theory.ir/1400/08/07/61778d9372a5834789e96560-07-56-42-015.jpg")
-      // ) {
-      //   console.log(polaroid)
-      // }
       const daysAfterPurchase =
         (Date.now() - new Date(polaroid.createdTime)) / (1000 * 60 * 60 * 24)
       if (!polaroid.createdTime || daysAfterPurchase > 30) {
         const res1 = await unload(polaroid.photo)
-        if (res1.result === 'error') {
-          console.log(res1.error);
+        if (res1.result === "error") {
+          if (res1.error && res1.error.code === 550) {
+            polaroid.status = 'cleaned'
+          } else {
+            console.error(res1.error)
+          }
         } else {
-          console.log(res1.path);
+          console.log(res1.path)
         }
-        const res2 = polaroid.thumbnail && (await unload(polaroid.thumbnail))
+        if (polaroid.thumbnail) await unload(polaroid.thumbnail)
         // polaroid.photo = null
         // polaroid.thumbnail = null
-        // await polaroid.save()
+        updatingPolaroids.push(polaroid.save())
       }
     }
+    await Promise.all(updatingPolaroids)
     console.log("Done & Dusted!")
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 
-module.exports = none
+module.exports = { removeOldPolaroids }

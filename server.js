@@ -22,7 +22,7 @@ const express = require("express"),
   PORT = process.env.PORT || 9905, //9905
   env = process.env.NODE_ENV || "dev",
   dotenv = require("dotenv"),
-  script = require("./utils/script")
+  { removeOldPolaroids } = require("./utils/scripts")
 // DATABASEURL = process.env.DATABASEURL
 // Counter     = require('./models/counter')
 dotenv.config()
@@ -31,8 +31,6 @@ const DATABASEURL =
     ? "mongodb://btheoryi_b612theory:#b612gol@b612theory.ir:27017/btheoryi_b612theory"
     : proccess.env.DATABASE_URL
 // mongodb://localhost/27017
-
-// script()
 
 // let counter = new Counter
 // counter._id = "trackingCode"
@@ -57,7 +55,10 @@ function mongooseConnection() {
         setTimeout(() => mongooseConnection(), 10000)
       } else {
         console.log("Connected to the database")
-        script()
+        removeOldPolaroids()
+        setTimeout(() => {
+          removeOldPolaroids()
+        }, 1000 * 3600 * 24 * 2)
       }
     }
   )

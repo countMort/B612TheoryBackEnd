@@ -1,4 +1,4 @@
-const { unload }    = require('../../utils/ftp')
+const { unload } = require("../../utils/ftp")
 
 module.exports= async function (polaroid) {
     await polaroid.remove()
