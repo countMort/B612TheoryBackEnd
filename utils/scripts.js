@@ -166,7 +166,7 @@ async function testDownloadSpeed() {
 
 async function removeOldPolaroids() {
   try {
-    const polaroids = await Polaroid.find({ status: { $ne: 'cleaned' } })
+    const polaroids = await Polaroid.find({ status: { $ne: "cleaned" } })
     const updatingPolaroids = []
     for (const polaroid of polaroids) {
       const daysAfterPurchase =
@@ -175,7 +175,7 @@ async function removeOldPolaroids() {
         const res1 = await unload(polaroid.photo)
         if (res1.result === "error") {
           if (res1.error && res1.error.code === 550) {
-            polaroid.status = 'cleaned'
+            polaroid.status = "cleaned"
           } else {
             console.error(res1.error)
           }

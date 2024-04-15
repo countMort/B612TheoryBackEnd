@@ -41,7 +41,7 @@ function runFtp(type) {
 unload = async function (path) {
   try {
     if (!ready) {
-      await new Promise((resolve, rej) => {
+      return await new Promise((resolve, rej) => {
         setTimeout(() => {
           unload(path).then((res) => resolve(res))
         }, 2000)
