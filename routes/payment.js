@@ -13,12 +13,12 @@ const router = require('express').Router(),
   VoiceCard = require('../models/voiceCard'),
   SHIPMENT = {
     normal: {
-      price: 29000,
+      price: 35000,
       days: 4,
       name: 'پیشتاز',
     },
     fast: {
-      price: 30000,
+      price: 45000,
       days: 2,
       name: 'ویژه',
     },
